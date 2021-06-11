@@ -1,5 +1,5 @@
 [package]
-name = "rust-asearch"
+name = "asearch"
 version = "0.1.0"
 authors = ["takker99 <37929109+takker99@users.noreply.github.com>"]
 edition = "2018"
