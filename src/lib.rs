@@ -1,7 +1,11 @@
+#![warn(missing_docs)]
+//! Approximate pattern matching crate
+
 const INITPAT: u32 = 0x80000000; // 0100,0000,0000,0000,0000,0000,0000,0000
 const MAXCHAR: usize = 0x10000;
 const INITSTATE: [u32; 4] = [INITPAT, 0, 0, 0];
 
+/// Approximate pattern matching engine
 pub struct Asearch {
     shiftpat: [u32; MAXCHAR],
     acceptpat: u32,
@@ -9,6 +13,7 @@ pub struct Asearch {
 }
 
 impl Asearch {
+    /// Create a new approximate pattern matching engine
     pub fn new(source: impl Into<String>) -> Asearch {
         let mut shiftpat: [u32; MAXCHAR] = [0; MAXCHAR];
         let mut mask = INITPAT;
@@ -49,6 +54,7 @@ impl Asearch {
         [i0, i1, i2, i3]
     }
 
+    /// Do approximate pattern matching
     pub fn find(&self, text: impl Into<String>, ambig: u8) -> bool {
         let ambig_ = if (ambig as usize) < INITSTATE.len() {
             ambig as usize
