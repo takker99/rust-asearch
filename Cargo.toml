@@ -8,6 +8,7 @@ license-file = "LICENSE"
 readme = "README.md"
 edition = "2018"
 categories = ["algorithms"]
+keywords = ["text", "search", "fuzzy", "match", "asearch"]
 
 [badges]
 github = { repository = "takker99/rust-asearch", workflow = "Rust" }
