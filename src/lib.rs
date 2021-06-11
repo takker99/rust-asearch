@@ -1,103 +1,101 @@
-pub mod asearch {
-    const INITPAT: u32 = 0x80000000; // 0100,0000,0000,0000,0000,0000,0000,0000
-    const MAXCHAR: usize = 0x10000;
-    const INITSTATE: [u32; 4] = [INITPAT, 0, 0, 0];
+const INITPAT: u32 = 0x80000000; // 0100,0000,0000,0000,0000,0000,0000,0000
+const MAXCHAR: usize = 0x10000;
+const INITSTATE: [u32; 4] = [INITPAT, 0, 0, 0];
 
-    pub struct Asearch {
-        shiftpat: [u32; MAXCHAR],
-        acceptpat: u32,
-        epsilon: u32,
-    }
+pub struct Asearch {
+    shiftpat: [u32; MAXCHAR],
+    acceptpat: u32,
+    epsilon: u32,
+}
 
-    impl Asearch {
-        pub fn new(source: impl Into<String>) -> Asearch {
-            let mut shiftpat: [u32; MAXCHAR] = [0; MAXCHAR];
-            let mut mask = INITPAT;
-            let mut epsilon: u32 = 0;
-            for item in &unpack(source.into()) {
-                // 0x20 is a space
-                if *item == 0x20 {
-                    epsilon |= mask;
-                } else {
-                    shiftpat[*item] |= mask;
-                    shiftpat[to_upper(*item)] |= mask;
-                    shiftpat[to_lower(*item)] |= mask;
-                    mask >>= 1;
-                }
-            }
-            Asearch {
-                acceptpat: mask,
-                shiftpat,
-                epsilon,
-            }
-        }
-
-        fn state(&self, text: impl Into<String>) -> [u32; 4] {
-            let mut i0 = INITSTATE[0];
-            let mut i1 = INITSTATE[1];
-            let mut i2 = INITSTATE[2];
-            let mut i3 = INITSTATE[3];
-            for item in &unpack(text.into()) {
-                let mask = self.shiftpat[*item];
-                i3 = (i3 & self.epsilon) | ((i3 & mask) >> 1) | (i2 >> 1) | i2;
-                i2 = (i2 & self.epsilon) | ((i2 & mask) >> 1) | (i1 >> 1) | i1;
-                i1 = (i1 & self.epsilon) | ((i1 & mask) >> 1) | (i0 >> 1) | i0;
-                i0 = (i0 & self.epsilon) | ((i0 & mask) >> 1);
-                i1 |= i0 >> 1;
-                i2 |= i1 >> 1;
-                i3 |= i2 >> 1;
-            }
-            [i0, i1, i2, i3]
-        }
-
-        pub fn find(&self, text: impl Into<String>, ambig: u8) -> bool {
-            let ambig_ = if (ambig as usize) < INITSTATE.len() {
-                ambig as usize
+impl Asearch {
+    pub fn new(source: impl Into<String>) -> Asearch {
+        let mut shiftpat: [u32; MAXCHAR] = [0; MAXCHAR];
+        let mut mask = INITPAT;
+        let mut epsilon: u32 = 0;
+        for item in &unpack(source.into()) {
+            // 0x20 is a space
+            if *item == 0x20 {
+                epsilon |= mask;
             } else {
-                INITSTATE.len() - 1
-            };
-
-            let s = self.state(text.into());
-            (s[ambig_] & self.acceptpat) != 0
+                shiftpat[*item] |= mask;
+                shiftpat[to_upper(*item)] |= mask;
+                shiftpat[to_lower(*item)] |= mask;
+                mask >>= 1;
+            }
+        }
+        Asearch {
+            acceptpat: mask,
+            shiftpat,
+            epsilon,
         }
     }
 
-    // code pointに変換する
-    // 添字に使う
-    fn unpack(text: impl Into<String>) -> Vec<usize> {
-        text.into()
-            .chars()
-            .into_iter()
-            .map(|c| c as usize)
-            .collect()
+    fn state(&self, text: impl Into<String>) -> [u32; 4] {
+        let mut i0 = INITSTATE[0];
+        let mut i1 = INITSTATE[1];
+        let mut i2 = INITSTATE[2];
+        let mut i3 = INITSTATE[3];
+        for item in &unpack(text.into()) {
+            let mask = self.shiftpat[*item];
+            i3 = (i3 & self.epsilon) | ((i3 & mask) >> 1) | (i2 >> 1) | i2;
+            i2 = (i2 & self.epsilon) | ((i2 & mask) >> 1) | (i1 >> 1) | i1;
+            i1 = (i1 & self.epsilon) | ((i1 & mask) >> 1) | (i0 >> 1) | i0;
+            i0 = (i0 & self.epsilon) | ((i0 & mask) >> 1);
+            i1 |= i0 >> 1;
+            i2 |= i1 >> 1;
+            i3 |= i2 >> 1;
+        }
+        [i0, i1, i2, i3]
     }
 
-    // 大文字小文字変換
-    fn is_upper(c: usize) -> bool {
-        (0x41..=0x5a).contains(&c)
-    }
-    fn is_lower(c: usize) -> bool {
-        (0x61..=0x7a).contains(&c)
-    }
-    fn to_lower(c: usize) -> usize {
-        if is_upper(c) {
-            c + 0x20
+    pub fn find(&self, text: impl Into<String>, ambig: u8) -> bool {
+        let ambig_ = if (ambig as usize) < INITSTATE.len() {
+            ambig as usize
         } else {
-            c
-        }
+            INITSTATE.len() - 1
+        };
+
+        let s = self.state(text.into());
+        (s[ambig_] & self.acceptpat) != 0
     }
-    fn to_upper(c: usize) -> usize {
-        if is_lower(c) {
-            c - 0x20
-        } else {
-            c
-        }
+}
+
+// code pointに変換する
+// 添字に使う
+fn unpack(text: impl Into<String>) -> Vec<usize> {
+    text.into()
+        .chars()
+        .into_iter()
+        .map(|c| c as usize)
+        .collect()
+}
+
+// 大文字小文字変換
+fn is_upper(c: usize) -> bool {
+    (0x41..=0x5a).contains(&c)
+}
+fn is_lower(c: usize) -> bool {
+    (0x61..=0x7a).contains(&c)
+}
+fn to_lower(c: usize) -> usize {
+    if is_upper(c) {
+        c + 0x20
+    } else {
+        c
+    }
+}
+fn to_upper(c: usize) -> usize {
+    if is_lower(c) {
+        c - 0x20
+    } else {
+        c
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::asearch::Asearch;
+    use super::*;
 
     #[test]
     fn pattern_abcde() {
