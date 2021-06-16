@@ -5,6 +5,7 @@ authors = ["takker99 <37929109+takker99@users.noreply.github.com>"]
 repository = "https://github.com/takker99/rust-asearch"
 description = "Approximate pattern matching on Rust"
 license-file = "LICENSE"
+license = "MIT"
 readme = "README.md"
 edition = "2018"
 categories = ["algorithms"]
