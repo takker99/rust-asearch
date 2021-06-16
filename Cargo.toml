@@ -2,7 +2,7 @@
 name = "asearch"
 version = "0.1.0"
 authors = ["takker99 <37929109+takker99@users.noreply.github.com>"]
-repository = "https://gihub.com/takker99/rust-asearch"
+repository = "https://github.com/takker99/rust-asearch"
 description = "Approximate pattern matching on Rust"
 license-file = "LICENSE"
 readme = "README.md"
