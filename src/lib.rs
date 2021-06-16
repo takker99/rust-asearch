@@ -17,7 +17,7 @@ impl Asearch {
     ///
     /// # Arguments
     ///
-    /// * `source` - text which is searched for.
+    /// - `source` - text which is searched for.
     pub fn new(source: impl Into<String>) -> Asearch {
         let mut shiftpat: [u32; MAXCHAR] = [0; MAXCHAR];
         let mut mask = INITPAT;
@@ -62,8 +62,8 @@ impl Asearch {
     ///
     /// # Arguments
     ///
-    /// * `text` - text which is searched.
-    /// * `ambig` - Levenshtein distance.
+    /// - `text` - text which is searched.
+    /// - `ambig` - Levenshtein distance.
     pub fn find(&self, text: impl Into<String>, ambig: u8) -> bool {
         let ambig_ = if (ambig as usize) < INITSTATE.len() {
             ambig as usize
