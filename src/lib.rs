@@ -15,6 +15,8 @@ pub struct Asearch {
 impl Asearch {
     /// Create a new approximate pattern matching engine
     ///
+    /// # Arguments
+    ///
     /// * `source` - text which is searched for.
     pub fn new(source: impl Into<String>) -> Asearch {
         let mut shiftpat: [u32; MAXCHAR] = [0; MAXCHAR];
@@ -57,6 +59,8 @@ impl Asearch {
     }
 
     /// Do approximate pattern matching
+    ///
+    /// # Arguments
     ///
     /// * `text` - text which is searched.
     /// * `ambig` - Levenshtein distance.
