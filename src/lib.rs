@@ -72,8 +72,8 @@ impl Asearch {
     }
 }
 
-// code pointに変換する
-// 添字に使う
+/// convert each char to a code point
+/// They are used for indice of the finite automaton
 fn unpack(text: impl Into<String>) -> Vec<usize> {
     text.into()
         .chars()
@@ -82,7 +82,6 @@ fn unpack(text: impl Into<String>) -> Vec<usize> {
         .collect()
 }
 
-// 大文字小文字変換
 fn is_upper(c: usize) -> bool {
     (0x41..=0x5a).contains(&c)
 }
